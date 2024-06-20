@@ -17,7 +17,7 @@
   tasks:
 
   - name: build compute base instance
-    os_server:
+    openstack.cloud.server:
       timeout: 300
       state: present
       name: "{{ ansible_facts.hostname }}-compute-base-instance"
@@ -27,7 +27,7 @@
       security_groups: "{{ sec_group_global }},{{ sec_group_internal }}"
       flavor: "{{ compute_base_size }}"
       meta: { compute: "base" }
-      auto_ip: "no"
+      auto_ip: "false"
       userdata: |
         #cloud-config
         packages: []
@@ -47,10 +47,6 @@
       name: "{{ os_host['server']['name'] }}"
       groups: "compute-base"
       ansible_host: "{{ os_host['server']['hostname'] }}"
-
-  - name: pause for ssh to come up
-    pause:
-      seconds: 90
 
 
 - hosts: compute-base
@@ -73,7 +69,17 @@
       - "docker-ce-rootless-extras.x86_64"
       - "Lmod"
 
+  gather_facts: false
+
   tasks:
+
+  - name: Wait for SSH to come up
+    ansible.builtin.wait_for_connection:
+      sleep: 5
+      timeout: 120
+
+  - name: Gather facts for first time
+    ansible.builtin.setup:
 
   - name: Get the headnode private IP
     local_action:

@@ -71,12 +71,16 @@ dnf -y --allowerasing install \
         bind-utils \
  	python3-pexpect
 
-pip3 install ansible
+pip3 install "ansible-core<2.17"
 mkdir -p /etc/ansible
 ln -s /usr/local/bin/ansible-playbook /usr/bin/ansible-playbook
 
 sudo pip3 install openstacksdk==2.1.0
 sudo pip3 install python-openstackclient==6.5.0
+
+ln -s /usr/local/bin/ansible-galaxy /usr/bin/ansible-galaxy
+ansible-galaxy collection install 'openstack.cloud:==2.2.0'
+ansible-galaxy collection install 'ansible.posix'
 
 dnf -y update  # until the base python2-openstackclient install works out of the box!
 
